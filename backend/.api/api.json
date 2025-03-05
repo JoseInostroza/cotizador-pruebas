@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "apis": [
+    {
+      "identifier": "apis-chile",
+      "source": "@apis-chile/v1.0#c2eba61cm7ldq3c7",
+      "integrity": "sha512-E0G3QbsVXq40u8FHlKN36f3ntCTTYz736hVgwon+oyxHVT9EiTORnKHnoLA3qW8b8m6Cgo68fdB7oOzNTrsfIg==",
+      "installerVersion": "6.1.3"
+    }
+  ]
+}
