@@ -85,8 +85,8 @@ app.post('/generar',async (req, res) =>{
         valorFinalPesos, //listo
         valorCreditoUf,//listo
         valorCreditoPesos,//listo
-        valorCuotaUf,
-        valorCuotaPesos,
+        valorCuotaUf,//listo 
+        valorCuotaPesos, //listo 
         valorReservaUf, //listo
         valorReservaPorsentaje, //listo
         numeroCuotas, //listo
@@ -160,7 +160,7 @@ app.get('/generar-pdf/:id', (req, res) => {
         doc.image('./logo.png', 50, 50, { width: 100 }); // Ajusta la ruta y posición
 
         // Encabezado
-        doc.fontSize(20).text('C O T I Z A C I Ó N  N °  1 2 8', { align: 'center' });
+        doc.fontSize(20).text(`C O T I Z A C I Ó N  N °  ${cotizacion.id}`, { align: 'center' });
         doc.fontSize(12).text('2 7 / 0 2 / 2 0 2 5', { align: 'center' });
         doc.moveDown();
 
@@ -172,19 +172,19 @@ app.get('/generar-pdf/:id', (req, res) => {
         // Sección de precios
         doc.fontSize(14).text('PRECIOS', { align: 'left', underline: true });
         doc.moveDown();
-        doc.fontSize(12).text('Característica           Valor');
-        doc.text('ACCIÓN C                 $1,766.00');
-        doc.text('DESCUENTO                15.00%');
-        doc.text('*120 de 8.70 UF');
+        doc.fontSize(12).text('Característica              Valor              UF              $');
+        doc.text(`${cotizacion.producto}                 ${cotizacion.valorListaUf}                 ${cotizacion.valorListaUf}                 ${cotizacion.valorListaPesos}`);
+        doc.text(`DESCUENTO                ${cotizacion.porcentajeDescuento}%                ${cotizacion.valorDescuentoUf}                ${cotizacion.valorDescuentoPesos}`);
+        doc.text(`                TOTAL                ${cotizacion.valorFinalUf}                   ${cotizacion.valorFinalPesos}`);
         doc.moveDown();
 
         // Sección de formas de pago
-        doc.fontSize(14).text('FORMAS DE PAGO', { align: 'left', underline: true });
+        doc.fontSize(14).text('DESGLOSE', { align: 'left', underline: true });
         doc.moveDown();
-        doc.fontSize(12).text('Característica           Cantidad   %        TOTAL');
-        doc.text('RESERVA                  29         0.43%     $11,406.33');
-        doc.text('PAGO INICIAL             450.33 UF  30.00%    $17,390.731');
-        doc.text('ABONO CUOTAS             1501.10 UF 79.63%    $54,309.157');
+        doc.fontSize(12).text('Característica           %        UF             $');
+        doc.text(`RESERVA                  ${cotizacion.valorReservaPorsentaje}%     ${cotizacion.valorReservaUf}                 $250000`);
+        doc.text(`PAGO INICIAL             ${cotizacion.porcentajePie}%             ${cotizacion.valorPieUf}               ${cotizacion.valorPiePesos}`);
+        doc.text(`CREDITO                              ${cotizacion.valorCreditoUf}                ${cotizacion.valorCreditoPesos}`);
         doc.moveDown();
 
         // Información del cliente
@@ -197,8 +197,8 @@ app.get('/generar-pdf/:id', (req, res) => {
         doc.moveDown();
 
         // Notas adicionales
-        doc.fontSize(12).text('*El valor de la cuota en pesos del día de hoy es de $338.105 con un valor UF de $38.632');
-        doc.text('**Los montos en pesos corresponden al valor de la UF de $38.632 al 27/02/2025, por lo cual sólo se citan como referencia');
+        doc.fontSize(12).text(`*El valor de la cuota en pesos del día de hoy es de $${cotizacion.valorCuotaPesos} con un valor UF de $${cotizacion.valorUf}`);
+        doc.text(`**Los montos en pesos corresponden al valor de la UF de $${cotizacion.valorUf} al ${cotizacion.fecha}, por lo cual sólo se citan como referencia`);
         doc.moveDown();
         doc.text('Para reservar contacta a tu ejecutivo o ingresa a la web:', { align: 'left' });
         doc.text('https://aquiva_linkdesitio_dereserva.com', { align: 'left', color: 'blue', underline: true });
