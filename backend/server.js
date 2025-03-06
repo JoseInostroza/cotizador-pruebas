@@ -155,11 +155,17 @@ app.get('/generar-pdf/:id', (req, res) => {
 
         // Agregar contenido al PDF
 
-        // Agregar espacio para imágenes en la parte superior
-        // PLACEHOLDER: Aquí irían las imágenes (logo, etc.)
-        doc.image('./logo.png', 50, 50, { width: 100 }); // Ajusta la ruta y posición
+         // Agregar imagen de cabecera
+         try {
+            doc.image('./logo.png', 50, 50, { width: 100 }); // Ajusta la ruta y posición
+        } catch (error) {
+            console.error('Error cargando la imagen:', error);
+            doc.fontSize(12).text('Logo no disponible', 50, 50);
+        }
 
         // Encabezado
+        doc.moveDown();
+        doc.moveDown();
         doc.fontSize(20).text(`C O T I Z A C I Ó N  N °  ${cotizacion.id}`, { align: 'center' });
         doc.fontSize(12).text('2 7 / 0 2 / 2 0 2 5', { align: 'center' });
         doc.moveDown();
@@ -172,38 +178,36 @@ app.get('/generar-pdf/:id', (req, res) => {
         // Sección de precios
         doc.fontSize(14).text('PRECIOS', { align: 'left', underline: true });
         doc.moveDown();
-        doc.fontSize(12).text('Característica              Valor              UF              $');
-        doc.text(`${cotizacion.producto}                 ${cotizacion.valorListaUf}                 ${cotizacion.valorListaUf}                 ${cotizacion.valorListaPesos}`);
-        doc.text(`DESCUENTO                ${cotizacion.porcentajeDescuento}%                ${cotizacion.valorDescuentoUf}                ${cotizacion.valorDescuentoPesos}`);
-        doc.text(`                TOTAL                ${cotizacion.valorFinalUf}                   ${cotizacion.valorFinalPesos}`);
+        doc.fontSize(12).text('Característica              Valor              UF              $', { align: 'left' });
+        doc.text(`${cotizacion.producto}                 ${cotizacion.valorListaUf}                 ${cotizacion.valorListaUf}                 ${cotizacion.valorListaPesos}`, { align: 'left' });
+        doc.text(`DESCUENTO                ${cotizacion.porcentajeDescuento}%                ${cotizacion.valorDescuentoUf}                ${cotizacion.valorDescuentoPesos}`, { align: 'left' });
+        doc.text(`                TOTAL                ${cotizacion.valorFinalUf}                   ${cotizacion.valorFinalPesos}`, { align: 'left' });
         doc.moveDown();
 
         // Sección de formas de pago
         doc.fontSize(14).text('DESGLOSE', { align: 'left', underline: true });
         doc.moveDown();
-        doc.fontSize(12).text('Característica           %        UF             $');
-        doc.text(`RESERVA                  ${cotizacion.valorReservaPorsentaje}%     ${cotizacion.valorReservaUf}                 $250000`);
-        doc.text(`PAGO INICIAL             ${cotizacion.porcentajePie}%             ${cotizacion.valorPieUf}               ${cotizacion.valorPiePesos}`);
-        doc.text(`CREDITO                              ${cotizacion.valorCreditoUf}                ${cotizacion.valorCreditoPesos}`);
+        doc.fontSize(12).text('Característica           %        UF             $', { align: 'left' });
+        doc.text(`RESERVA                  ${cotizacion.valorReservaPorsentaje}%     ${cotizacion.valorReservaUf}                 $250000`, { align: 'left' });
+        doc.text(`PAGO INICIAL             ${cotizacion.porcentajePie}%             ${cotizacion.valorPieUf}               ${cotizacion.valorPiePesos}`, { align: 'left' });
+        doc.text(`CREDITO                              ${cotizacion.valorCreditoUf}                ${cotizacion.valorCreditoPesos}`, { align: 'left' });
         doc.moveDown();
 
         // Información del cliente
         doc.fontSize(14).text('INFORMACIÓN DEL CLIENTE', { align: 'left', underline: true });
         doc.moveDown();
-        doc.fontSize(12).text(`Sr: ${cotizacion.nombre}`);
-        doc.text(`Rut: ${cotizacion.rut || 'PLACEHOLDER_RUT'}`); // PLACEHOLDER: Agregar RUT
-        doc.text(`Teléfono: ${cotizacion.telefono}`);
-        doc.text(`Email: ${cotizacion.email}`);
+        doc.fontSize(12).text(`Sr: ${cotizacion.nombre}`, { align: 'left' });
+        doc.text(`Rut: ${cotizacion.rut || 'PLACEHOLDER_RUT'}`, { align: 'left' }); // PLACEHOLDER: Agregar RUT
+        doc.text(`Teléfono: ${cotizacion.telefono}`, { align: 'left' });
+        doc.text(`Email: ${cotizacion.email}`, { align: 'left' });
         doc.moveDown();
 
         // Notas adicionales
-        doc.fontSize(12).text(`*El valor de la cuota en pesos del día de hoy es de $${cotizacion.valorCuotaPesos} con un valor UF de $${cotizacion.valorUf}`);
-        doc.text(`**Los montos en pesos corresponden al valor de la UF de $${cotizacion.valorUf} al ${cotizacion.fecha}, por lo cual sólo se citan como referencia`);
+        doc.fontSize(12).text(`*El valor de la cuota en pesos del día de hoy es de $${cotizacion.valorCuotaPesos} con un valor UF de $${cotizacion.valorUf}`, { align: 'left' });
+        doc.text(`**Los montos en pesos corresponden al valor de la UF de $${cotizacion.valorUf} al ${cotizacion.fecha}, por lo cual sólo se citan como referencia`, { align: 'left' });
         doc.moveDown();
         doc.text('Para reservar contacta a tu ejecutivo o ingresa a la web:', { align: 'left' });
         doc.text('https://aquiva_linkdesitio_dereserva.com', { align: 'left', color: 'blue', underline: true });
-
-
 
         // Finalizar el PDF
         doc.end();
