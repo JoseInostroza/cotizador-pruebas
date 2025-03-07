@@ -38,7 +38,6 @@ app.post('/generar',async (req, res) =>{
     //logica para los medios de pago 
     //declaraciones directas 
     let valorUf = await obtenerValorUF()
-    console.log(valorUf);
     
     let metodo = metodos[producto]
     let porcentajeDescuento = metodo.descuento
@@ -50,18 +49,18 @@ app.post('/generar',async (req, res) =>{
     let valorDescuentoUf = (valorListaUf*porcentajeDescuento)/100
     let valorFinalUf = valorListaUf - valorDescuentoUf
     let valorPieUf = (valorFinalUf*porcentajePie)/100
-    let valorReservaUf = 250000/valorUf
-    let valorCreditoUf = valorFinalUf - valorPieUf -valorReservaUf
-    let valorCuotaUf = valorCreditoUf/numeroCuotas    
+    let valorReservaUf = (250000/valorUf).toFixed(2)
+    let valorCreditoUf = (valorFinalUf - valorPieUf -valorReservaUf).toFixed(2)
+    let valorCuotaUf = (valorCreditoUf/numeroCuotas).toFixed(2)
+    let valorReservaPorsentaje = ((valorReservaUf*100)/valorFinalUf).toFixed(2)
 
     //valores pesos chileno
     let valorListaPesos = metodo.valorLista*valorUf
-    let valorDescuentoPesos = valorDescuentoUf*valorUf
-    let valorFinalPesos = valorFinalUf*valorUf    
-    let valorPiePesos = valorPieUf*valorUf
-    let valorReservaPorsentaje = (valorReservaUf*100)/valorFinalUf    
-    let valorCreditoPesos = valorCreditoUf*valorUf
-    let valorCuotaPesos = valorCuotaUf*valorUf   
+    let valorDescuentoPesos = (valorDescuentoUf*valorUf).toFixed(2)
+    let valorFinalPesos = (valorFinalUf*valorUf).toFixed(2)
+    let valorPiePesos = (valorPieUf*valorUf).toFixed(2)
+    let valorCreditoPesos = (valorCreditoUf*valorUf).toFixed(2)
+    let valorCuotaPesos = (valorCuotaUf*valorUf ).toFixed(2)
 
     // Crear la cotización
     const nuevaCotizacion = {
@@ -91,7 +90,7 @@ app.post('/generar',async (req, res) =>{
         valorReservaPorsentaje, //listo
         numeroCuotas, //listo
         observaciones, //listo 
-        fecha: new Date().toISOString() //listo 
+        fecha: new Date().toLocaleDateString('es-CL') //listo 
     };
 
     // Leer el archivo JSON
@@ -155,19 +154,35 @@ app.get('/generar-pdf/:id', (req, res) => {
 
         // Agregar contenido al PDF
 
-         // Agregar imagen de cabecera
+         // Agregar imagen de logo
          try {
-            doc.image('./logo.png', 50, 50, { width: 100 }); // Ajusta la ruta y posición
+            doc.image('./logo.png', 25, 25, { width: 100 }); // Ajusta la ruta y posición
         } catch (error) {
             console.error('Error cargando la imagen:', error);
             doc.fontSize(12).text('Logo no disponible', 50, 50);
         }
 
+        //imagen de cabecera
+        try {
+            const imagePath = './cabecera.png'; // Ruta de la imagen
+            const imageWidth = 595.28 - 100; // Ancho del PDF menos márgenes (50 puntos a cada lado)
+            const imageHeight = 170; // Alto de la imagen (ajusta este valor según sea necesario)
+
+            doc.image(imagePath, 50, 75, { width: imageWidth, height: imageHeight }); // Imagen debajo del logo
+        } catch (error) {
+            console.error('Error cargando la imagen de cabecera:', error);
+            doc.fontSize(12).text('Imagen de cabecera no disponible', 50, 160);
+        }
+
+        // Ajustar la posición del texto debajo de la imagen
+        const margenSuperior = 15; // Margen entre la imagen y el texto
+        doc.y = 75 + 170+ margenSuperior; // Posición vertical del texto
+
         // Encabezado
         doc.moveDown();
         doc.moveDown();
         doc.fontSize(20).text(`C O T I Z A C I Ó N  N °  ${cotizacion.id}`, { align: 'center' });
-        doc.fontSize(12).text('2 7 / 0 2 / 2 0 2 5', { align: 'center' });
+        doc.fontSize(12).text(`${cotizacion.fecha}`, { align: 'center' });
         doc.moveDown();
 
         // Saludo
