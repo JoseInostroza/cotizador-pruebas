@@ -27,13 +27,14 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-app.post('/generar',async (req, res) =>{
+app.post('/api/generar',async (req, res) =>{
     const { nombre, email, telefono, producto, cantidad,rut , observaciones} = req.body;
     
     //validacion
     if (!nombre || !email || !telefono || !producto || !cantidad ||!rut) {
         return res.status(400).json({ mensaje: 'Faltan campos' });
     }
+    
     
     //logica para los medios de pago 
     //declaraciones directas 
@@ -117,7 +118,7 @@ app.post('/generar',async (req, res) =>{
 })
 
 // Ruta para listar todas las cotizaciones
-app.get('/cotizaciones', (req, res) => {
+app.get('api/cotizaciones', (req, res) => {
     fs.readFile(cotizacionesFilePath, 'utf8', (err, data) => {
         if (err) {
             console.error('Error leyendo el archivo JSON:', err);
@@ -130,7 +131,7 @@ app.get('/cotizaciones', (req, res) => {
 });
 
 // Ruta para generar el PDF de una cotización
-app.get('/generar-pdf/:id', (req, res) => {
+app.get('api/generar-pdf/:id', (req, res) => {
     const cotizacionId = parseInt(req.params.id);
 
     // Leer el archivo JSON
@@ -179,50 +180,52 @@ app.get('/generar-pdf/:id', (req, res) => {
         doc.y = 75 + 170+ margenSuperior; // Posición vertical del texto
 
         // Encabezado
-        doc.moveDown();
-        doc.moveDown();
         doc.fontSize(20).text(`C O T I Z A C I Ó N  N °  ${cotizacion.id}`, { align: 'center' });
         doc.fontSize(12).text(`${cotizacion.fecha}`, { align: 'center' });
         doc.moveDown();
 
         // Saludo
-        doc.fontSize(18).text(`¡Hola ${cotizacion.nombre}!`, { align: 'left' });
-        doc.fontSize(14).text('Esta es tu cotización para acceder a Proyecto Land', { align: 'left' });
+        doc.fontSize(14).text(`¡Hola ${cotizacion.nombre}!`, { align: 'left' });
+        doc.fontSize(12).text('Esta es tu cotización para acceder a Proyecto Land', { align: 'left'  });
+   
+
+        // Información del cliente
+        doc.fontSize(10).text('INFORMACIÓN DEL CLIENTE', { align: 'right', underline: true });
+        doc.fontSize(8).text(`Sr: ${cotizacion.nombre}`, { align: 'right' });
+        doc.text(`Rut: ${cotizacion.rut || 'PLACEHOLDER_RUT'}`, { align: 'right' }); // PLACEHOLDER: Agregar RUT
+        doc.text(`Teléfono: ${cotizacion.telefono}`, { align: 'right' });
+        doc.text(`Email: ${cotizacion.email}`, { align: 'right' });
         doc.moveDown();
 
         // Sección de precios
-        doc.fontSize(14).text('PRECIOS', { align: 'left', underline: true });
+        doc.fontSize(14).fill('#3B83BD').text('PRECIOS', { align: 'left', underline: true });
         doc.moveDown();
-        doc.fontSize(12).text('Característica              Valor              UF              $', { align: 'left' });
-        doc.text(`${cotizacion.producto}                 ${cotizacion.valorListaUf}                 ${cotizacion.valorListaUf}                 ${cotizacion.valorListaPesos}`, { align: 'left' });
-        doc.text(`DESCUENTO                ${cotizacion.porcentajeDescuento}%                ${cotizacion.valorDescuentoUf}                ${cotizacion.valorDescuentoPesos}`, { align: 'left' });
-        doc.text(`                TOTAL                ${cotizacion.valorFinalUf}                   ${cotizacion.valorFinalPesos}`, { align: 'left' });
+        doc.fontSize(12).fill("black").text('CARACTERÍSTICA               Valor                UF                     $', { align: 'justify' });
+        doc.text(`${cotizacion.producto}                                ${cotizacion.valorListaUf}                 ${cotizacion.valorListaUf}                 ${cotizacion.valorListaPesos}`, { align: 'justify' });
+        doc.text(`DESCUENTO                       ${cotizacion.porcentajeDescuento}%                    ${cotizacion.valorDescuentoUf}                       ${cotizacion.valorDescuentoPesos}`, { align: 'justify' });
+        doc.text(`                               TOTAL                           ${cotizacion.valorFinalUf}                  ${cotizacion.valorFinalPesos}`, { align: 'justify' });
         doc.moveDown();
 
         // Sección de formas de pago
-        doc.fontSize(14).text('DESGLOSE', { align: 'left', underline: true });
+        doc.fontSize(14).fillColor("#3B83BD").text('DESGLOSE', { align: 'left', underline: true});
         doc.moveDown();
-        doc.fontSize(12).text('Característica           %        UF             $', { align: 'left' });
-        doc.text(`RESERVA                  ${cotizacion.valorReservaPorsentaje}%     ${cotizacion.valorReservaUf}                 $250000`, { align: 'left' });
-        doc.text(`PAGO INICIAL             ${cotizacion.porcentajePie}%             ${cotizacion.valorPieUf}               ${cotizacion.valorPiePesos}`, { align: 'left' });
-        doc.text(`CREDITO                              ${cotizacion.valorCreditoUf}                ${cotizacion.valorCreditoPesos}`, { align: 'left' });
+        doc.fontSize(12).fillColor('black').text('CARACTERÍSTICA               Valor                UF                     $', { align: 'justify' });
+        doc.text(`RESERVA                              ${cotizacion.valorReservaPorsentaje}%             ${cotizacion.valorReservaUf}                 250000`, { align: 'justify' });
+        doc.text(`PAGO INICIAL                       ${cotizacion.porcentajePie}%                ${cotizacion.valorPieUf}               ${cotizacion.valorPiePesos}`, { align: 'justify' });
+        doc.text(`CREDITO n° cuotas ${cotizacion.numeroCuotas} de ${cotizacion.valorCuotaUf}               ${cotizacion.valorCreditoUf}            ${cotizacion.valorCreditoPesos}`, { align: 'justify' });
         doc.moveDown();
 
-        // Información del cliente
-        doc.fontSize(14).text('INFORMACIÓN DEL CLIENTE', { align: 'left', underline: true });
-        doc.moveDown();
-        doc.fontSize(12).text(`Sr: ${cotizacion.nombre}`, { align: 'left' });
-        doc.text(`Rut: ${cotizacion.rut || 'PLACEHOLDER_RUT'}`, { align: 'left' }); // PLACEHOLDER: Agregar RUT
-        doc.text(`Teléfono: ${cotizacion.telefono}`, { align: 'left' });
-        doc.text(`Email: ${cotizacion.email}`, { align: 'left' });
-        doc.moveDown();
+
 
         // Notas adicionales
+        doc.moveDown()
         doc.fontSize(12).text(`*El valor de la cuota en pesos del día de hoy es de $${cotizacion.valorCuotaPesos} con un valor UF de $${cotizacion.valorUf}`, { align: 'left' });
         doc.text(`**Los montos en pesos corresponden al valor de la UF de $${cotizacion.valorUf} al ${cotizacion.fecha}, por lo cual sólo se citan como referencia`, { align: 'left' });
         doc.moveDown();
-        doc.text('Para reservar contacta a tu ejecutivo o ingresa a la web:', { align: 'left' });
-        doc.text('https://aquiva_linkdesitio_dereserva.com', { align: 'left', color: 'blue', underline: true });
+        doc.moveDown();
+        doc.fontSize(12).text('www.proyectoland.com  Av.Kennedy 5488, torre norte, of.1305, Vitacura, Santiago Chile', { align: "left"})
+        //doc.text('Para reservar contacta a tu ejecutivo o ingresa a la web:', { align: 'left' });
+        //doc.text('https://aquiva_linkdesitio_dereserva.com', { align: 'left', color: 'blue', underline: true });
 
         // Finalizar el PDF
         doc.end();

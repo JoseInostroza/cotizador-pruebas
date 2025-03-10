@@ -1,41 +1,41 @@
 {
-    "land vip 1":{
+    "LAND VIP 1":{
         "valorLista": 7063,
         "descuento":0, 
         "pie":30,
         "cuotas":180
     },
-    "land vip 2":{
+    "LAND VIP 2":{
         "valorLista": 7063,
         "descuento":10,
         "pie":100,
         "cuotas":1
     },
-    "land 1":{
+    "LAND 1":{
         "valorLista": 1766,
         "descuento":0,
         "pie":20,
         "cuotas":180
     },
-    "land 2":{
+    "LAND 2":{
         "valorLista": 1766,
         "descuento":0,
         "pie":30,
         "cuotas":180
     },
-    "land 3":{
+    "LAND 3":{
         "valorLista": 1766,
         "descuento":15,
         "pie":30,
         "cuotas":120
     },
-    "land 4":{
+    "LAND 4":{
         "valorLista": 1766,
         "descuento":30,
         "pie":100,
         "cuotas":1
     },
-    "land 5":{
+    "LAND 5":{
         "valorLista": 1766,
         "descuento":0,
         "pie":30,
